@@ -42,23 +42,25 @@
     
     mapView.mapType = kGMSTypeNormal;
     
-    [[UIScreen mainScreen] bounds];
     
-    UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f, 0.0f, [[UIScreen mainScreen] bounds].size.width, 30.0f)];
     
-//    [toolbar setBackgroundColor:[UIColor blackColor]];
+        UIBarButtonItem *startBtn = [[UIBarButtonItem alloc] initWithTitle:@"START" style:UIBarButtonItemStyleBordered target:self action:@selector(startBtnClicked:)];
+    self.navigationItem.rightBarButtonItem = startBtn;
     self.view = mapView;
-    NSLog(@"%lf  %lf",self.view.frame.size.width,self.view.frame.size.height);
-    [self.view addSubview:toolbar];
+    CLLocationCoordinate2D position = CLLocationCoordinate2DMake(48.8578781, 2.2952149);
+    GMSMarker *marker = [GMSMarker markerWithPosition:position];
+    marker.title = @"Hello World";
+    marker.map = mapView;
     
+    UISearchBar *searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 30.0f)];
+    [self.navigationItem setTitleView:searchBar];
     
     
 }
-
--(BOOL) shouldAutorotate{
-    
-    return YES;
-    
+-(void) startBtnClicked:(id)sender
+{
+    streetViewController *street = [[streetViewController alloc] init];
+    [self.navigationController pushViewController:street animated:YES];
 }
 
 - (void)didReceiveMemoryWarning {

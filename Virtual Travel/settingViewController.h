@@ -8,11 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleMaps/GoogleMaps.h>
-
+#import "streetViewController.h"
+#import "GoogleDataManager.h"
 @interface settingViewController : UIViewController
 {
     GMSMapView *mapView;
 }
+-(void) startBtnClicked:(id)sender;
 @end
 
 

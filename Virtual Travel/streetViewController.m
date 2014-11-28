@@ -31,6 +31,7 @@
      */
     
     _player = [[AVPlayer alloc] initWithURL:[NSURL URLWithString:@"http://stream.jewishmusicstream.com:8000"]];
+    [_player setVolume:0.0f];
     
     /*  Kicking off playback takes over
      *  the software based remote control
@@ -47,12 +48,17 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moveTo) name:@"move" object:nil];
     // Do any additional setup after loading the view, typically from a nib.
     panoService = [[GMSPanoramaService alloc] init];
-    panoView = [[GMSPanoramaView alloc] initWithFrame:CGRectZero];
-    self.view = panoView;
+    panoView = [[GMSPanoramaView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, [[UIScreen mainScreen] bounds].size.width/2, 320.0f)];
+//    self.view = panoView;
+    [self.view addSubview:panoView];
+    rightPanoView = [[GMSPanoramaView alloc] initWithFrame:CGRectMake([[UIScreen mainScreen] bounds].size.width/2, 0.0f, [[UIScreen mainScreen] bounds].size.width/2, 320.0f)];
+    [self.view addSubview:rightPanoView];
     
     coor = CLLocationCoordinate2DMake(48.8578781,2.2952149);
     [panoView moveNearCoordinate:coor];
     [panoView setStreetNamesHidden:YES];
+    [rightPanoView moveNearCoordinate:coor];
+    [rightPanoView setStreetNamesHidden:YES];
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
     
@@ -74,6 +80,7 @@
                                                selector:@selector(updateGyro) userInfo:nil repeats:YES];
     }
     //    [NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(checkMove) userInfo:nil repeats:YES];
+   self.navigationController.navigationBarHidden = YES;
 }
 -(void) checkMove
 {
@@ -105,6 +112,7 @@
     }
     isMoving = YES;
     [panoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:panoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
+    [rightPanoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:panoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
     [NSTimer scheduledTimerWithTimeInterval:0.4f target:self selector:@selector(moveToPanoramaID) userInfo:self repeats:NO];
     
     
@@ -113,6 +121,7 @@
 {
     isMoving = NO;
     [panoView moveToPanoramaID:selectedPanorama.panoramaID];
+    [rightPanoView moveToPanoramaID:selectedPanorama.panoramaID];
 }
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
     if(isMoving) return;
@@ -120,6 +129,7 @@
     CLLocationDirection  theHeading = ((newHeading.trueHeading > 0) ?
                                        newHeading.trueHeading : newHeading.magneticHeading);
     [panoView setCamera:[GMSPanoramaCamera cameraWithHeading:theHeading pitch:panoView.camera.orientation.pitch zoom:1.0f]];
+    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:theHeading+5 pitch:panoView.camera.orientation.pitch zoom:1.0f]];
     currentHeading = theHeading;
     
 }
@@ -134,6 +144,7 @@
     tempPitch = (short) (attitude.pitch*180 / M_PI);
     yaw = (short) (attitude.yaw*180 / M_PI);
     [panoView setCamera:[GMSPanoramaCamera cameraWithHeading:currentHeading pitch:(roll-80.0f) zoom:1.0f]];
+    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:currentHeading+5 pitch:(roll-80.0f) zoom:1.0f]];
     roll = tempRoll;
     pitch = tempPitch;
 }

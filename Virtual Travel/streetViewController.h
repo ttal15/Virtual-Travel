@@ -17,6 +17,7 @@
 @interface streetViewController : UIViewController<CLLocationManagerDelegate,MTSpeechRecognizerDelegate, MTSpeechRecognizerViewDelegate>
 {
     GMSPanoramaView *panoView;
+    GMSPanoramaView *rightPanoView;
     GMSPanoramaService *panoService;
     
     CLLocationManager *locationManager;

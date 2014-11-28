@@ -46,6 +46,7 @@
 		AA6524271A26023C00F36B48 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6524261A26023C00F36B48 /* CoreFoundation.framework */; };
 		AA6524291A26024300F36B48 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6524281A26024300F36B48 /* CoreData.framework */; };
 		AA65242B1A26024700F36B48 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA65242A1A26024700F36B48 /* AVFoundation.framework */; };
+		AAD133161A287E0B00A02DAE /* GoogleDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AAD133151A287E0B00A02DAE /* GoogleDataManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +108,8 @@
 		AA6524261A26023C00F36B48 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		AA6524281A26024300F36B48 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		AA65242A1A26024700F36B48 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		AAD133141A287E0B00A02DAE /* GoogleDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleDataManager.h; sourceTree = "<group>"; };
+		AAD133151A287E0B00A02DAE /* GoogleDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleDataManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +181,7 @@
 		AA6523821A25FC8700F36B48 /* Virtual Travel */ = {
 			isa = PBXGroup;
 			children = (
+				AAD133131A287DEE00A02DAE /* Google */,
 				AA6523E81A25FD8F00F36B48 /* RCApplication.h */,
 				AA6523E91A25FD8F00F36B48 /* RCApplication.m */,
 				AA6523E51A25FD8A00F36B48 /* streetViewController.h */,
@@ -263,6 +267,15 @@
 				AA6523EC1A25FDCC00F36B48 /* GoogleMaps.bundle */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		AAD133131A287DEE00A02DAE /* Google */ = {
+			isa = PBXGroup;
+			children = (
+				AAD133141A287E0B00A02DAE /* GoogleDataManager.h */,
+				AAD133151A287E0B00A02DAE /* GoogleDataManager.m */,
+			);
+			name = Google;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -370,6 +383,7 @@
 				AA65238C1A25FC8700F36B48 /* ViewController.m in Sources */,
 				AA6523891A25FC8700F36B48 /* AppDelegate.m in Sources */,
 				AA6523EA1A25FD8F00F36B48 /* RCApplication.m in Sources */,
+				AAD133161A287E0B00A02DAE /* GoogleDataManager.m in Sources */,
 				AA6523861A25FC8700F36B48 /* main.m in Sources */,
 				AA6523E41A25FD5900F36B48 /* settingViewController.m in Sources */,
 			);
@@ -594,6 +608,7 @@
 				AA6523A51A25FC8700F36B48 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		AA6523A61A25FC8700F36B48 /* Build configuration list for PBXNativeTarget "Virtual TravelTests" */ = {
 			isa = XCConfigurationList;
@@ -602,6 +617,7 @@
 				AA6523A81A25FC8700F36B48 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
