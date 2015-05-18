@@ -42,6 +42,7 @@
     [_player play];
 }
 - (void)viewDidLoad {
+    bdAngle = 3.0f;
     [super viewDidLoad];
     isMoving = NO;
     
@@ -49,23 +50,23 @@
     // Do any additional setup after loading the view, typically from a nib.
     panoService = [[GMSPanoramaService alloc] init];
     panoView = [[GMSPanoramaView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, [[UIScreen mainScreen] bounds].size.width/2, 320.0f)];
-//    self.view = panoView;
+    panoView.delegate =self;
     [self.view addSubview:panoView];
     rightPanoView = [[GMSPanoramaView alloc] initWithFrame:CGRectMake([[UIScreen mainScreen] bounds].size.width/2, 0.0f, [[UIScreen mainScreen] bounds].size.width/2, 320.0f)];
     [self.view addSubview:rightPanoView];
-    
-    coor = CLLocationCoordinate2DMake(48.8578781,2.2952149);
-    [panoView moveNearCoordinate:coor];
+//startCoord = CLLocationCoordinate2DMake(43.7696488,11.2553579);
+    [panoView moveNearCoordinate:startCoord];
     [panoView setStreetNamesHidden:YES];
-    [rightPanoView moveNearCoordinate:coor];
+    [rightPanoView moveNearCoordinate:startCoord];
     [rightPanoView setStreetNamesHidden:YES];
+
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
     
     locationManager.distanceFilter = 1000;
     locationManager.desiredAccuracy = kCLLocationAccuracyKilometer;
     [locationManager startUpdatingLocation];
-    
+
     // Start heading updates.
     if ([CLLocationManager headingAvailable]) {
         locationManager.headingFilter = 5;
@@ -79,24 +80,70 @@
         timer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self
                                                selector:@selector(updateGyro) userInfo:nil repeats:YES];
     }
-    //    [NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(checkMove) userInfo:nil repeats:YES];
    self.navigationController.navigationBarHidden = YES;
+//    if(autoTravel){
+//        [NSTimer scheduledTimerWithTimeInterval:10.0f target:self selector:@selector(moveAutomatically) userInfo:nil repeats:YES];
+  //  }
+    markerArray = [[NSMutableArray alloc] init];
+    
+    GMSPanoramaLayer *layer = [GMSPanoramaLayer layer];
+    layer.frame = CGRectMake(0.0f, 0.0f, 50.0f, 50.0f);
+    layer.contents = (id) [UIImage imageNamed:@"]
+
+}
+-(void) moveAutomatically
+{
+    CLLocation *currentLocation = [[CLLocation alloc] initWithLatitude:panoView.panorama.coordinate.latitude longitude:panoView.panorama.coordinate.longitude];
+    CLLocation *destLocation = [[CLLocation alloc] initWithLatitude:[path coordinateAtIndex:0].latitude longitude:[path coordinateAtIndex:0].longitude];
+    int index = 0;
+    float dist = [currentLocation distanceFromLocation:destLocation];
+    for(int i=1;i<[path count];i++){
+        destLocation = [[CLLocation alloc] initWithLatitude:[path coordinateAtIndex:i].latitude longitude:[path coordinateAtIndex:i].longitude];
+        if(dist > [currentLocation distanceFromLocation:destLocation]){
+            index = i;
+            dist = [currentLocation distanceFromLocation:destLocation];
+        }
+    }
+    if(index == [path count]-1) return;
+    NSArray *links = panoView.panorama.links;
+    float currHeading = [self getHeadingForDirectionFromCoordinate:panoView.panorama.coordinate toCoordinate:[path coordinateAtIndex:index+1]];
+    selectedPanorama = [links objectAtIndex:0];
+    double heading = fabs(currHeading - selectedPanorama.heading);
+    for(int i=1;i<[links count];i++){
+        double tempHeading = fabs(currHeading - [(GMSPanoramaLink *)[links objectAtIndex:i] heading]);
+        if(heading > tempHeading){
+            heading = tempHeading;
+            selectedPanorama = [links objectAtIndex:i];
+        }
+    }
+    
+    isMoving = YES;
+    [panoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:panoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
+    [rightPanoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:rightPanoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
+    [NSTimer scheduledTimerWithTimeInterval:0.3f target:self selector:@selector(moveToPanoramaID) userInfo:self repeats:NO];
+}
+- (float) getHeadingForDirectionFromCoordinate:(CLLocationCoordinate2D)fromLoc toCoordinate:(CLLocationCoordinate2D)toLoc
+{
+    float fLat = fromLoc.latitude;
+    float fLng = fromLoc.longitude;
+    float tLat = toLoc.latitude;
+    float tLng = toLoc.longitude;
+    
+    return atan2(sin(fLng-tLng)*cos(tLat), cos(fLat)*sin(tLat)-sin(fLat)*cos(tLat)*cos(fLng-tLng));
+}
+
+-(void) setStartCoord:(CLLocationCoordinate2D)coord
+{
+    startCoord = coord;
+}
+-(void) setPath:(GMSPath *)p
+{
+    path = p;
 }
 -(void) checkMove
 {
     if(isChecking) return;
     isChecking = YES;
-    if (speechRecognizer != nil) {
-        speechRecognizer = nil;
-    }
-    
-    NSMutableDictionary *config = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                   @"2b268b18991386c80c9054ab1aee8ce709b3085c", SpeechRecognizerConfigKeyApiKey,
-                                   SpeechRecognizerServiceTypeDictation, SpeechRecognizerConfigKeyServiceType, nil];
-    speechRecognizer = [[MTSpeechRecognizerClient alloc] initWithConfig:config];
-    [speechRecognizer setDelegate:self];
-    
-    [speechRecognizer startRecording];
     
 }
 - (void) moveTo{
@@ -112,8 +159,8 @@
     }
     isMoving = YES;
     [panoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:panoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
-    [rightPanoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:panoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
-    [NSTimer scheduledTimerWithTimeInterval:0.4f target:self selector:@selector(moveToPanoramaID) userInfo:self repeats:NO];
+    [rightPanoView animateToCamera:[GMSPanoramaCamera cameraWithOrientation:rightPanoView.camera.orientation zoom:3.0f] animationDuration:0.5f];
+    [NSTimer scheduledTimerWithTimeInterval:0.3f target:self selector:@selector(moveToPanoramaID) userInfo:self repeats:NO];
     
     
 }
@@ -129,7 +176,7 @@
     CLLocationDirection  theHeading = ((newHeading.trueHeading > 0) ?
                                        newHeading.trueHeading : newHeading.magneticHeading);
     [panoView setCamera:[GMSPanoramaCamera cameraWithHeading:theHeading pitch:panoView.camera.orientation.pitch zoom:1.0f]];
-    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:theHeading+5 pitch:panoView.camera.orientation.pitch zoom:1.0f]];
+    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:theHeading+bdAngle pitch:panoView.camera.orientation.pitch zoom:1.0f]];
     currentHeading = theHeading;
     
 }
@@ -144,7 +191,7 @@
     tempPitch = (short) (attitude.pitch*180 / M_PI);
     yaw = (short) (attitude.yaw*180 / M_PI);
     [panoView setCamera:[GMSPanoramaCamera cameraWithHeading:currentHeading pitch:(roll-80.0f) zoom:1.0f]];
-    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:currentHeading+5 pitch:(roll-80.0f) zoom:1.0f]];
+    [rightPanoView setCamera:[GMSPanoramaCamera cameraWithHeading:currentHeading+bdAngle pitch:(roll-80.0f) zoom:1.0f]];
     roll = tempRoll;
     pitch = tempPitch;
 }
@@ -167,6 +214,8 @@
                 break;
                 
             case UIEventSubtypeRemoteControlNextTrack:
+                [self.navigationController setNavigationBarHidden:NO];
+                [self.navigationController popToRootViewControllerAnimated:NO];
                 break;
                 
             default:
@@ -177,52 +226,34 @@
 - (BOOL)canBecomeFirstResponder {
     return YES;
 }
-#pragma mark ---- MTSpeechRecognizerDelegate ----
-
-- (void)onReady {
-    
-}
-
-- (void)onBeginningOfSpeech {
-    
-}
-
-- (void)onEndOfSpeech {
-    
-}
-
-- (void)onError:(MTSpeechRecognizerError)errorCode message:(NSString *)message {
-    if (speechRecognizer) {
-        speechRecognizer = nil;
+-(void)panoramaView:(GMSPanoramaView *)view didMoveToPanorama:(GMSPanorama *)panorama{
+    for(GMSMarker *m in markerArray){
+        m.panoramaView = nil;
     }
-    NSLog(@"%@",message);
-}
-
-- (void)onPartialResult:(NSString *)partialResult {
-    NSString *result = partialResult;
-    if (result.length > 0) {
+    [markerArray removeAllObjects];
+    GMSMarker *mark = [GMSMarker markerWithPosition:panorama.coordinate];
+    mark.icon = [UIImage imageNamed:@"exit.png"];
+    mark.panoramaView = panoView;
+    GMSMarker *mark2 = [GMSMarker markerWithPosition:panorama.coordinate];
+    mark2.icon = [UIImage imageNamed:@"exit.png"];
+    mark2.panoramaView = rightPanoView;
+    [markerArray addObject:mark];
+    [markerArray addObject:mark2];
+    for(GMSPanoramaLink *link in panorama.links){
+        [panoService requestPanoramaWithID:link.panoramaID callback:^(GMSPanorama *panorama, NSError *error) {
+            GMSMarker* marker = [GMSMarker markerWithPosition:panorama.coordinate];
+            marker.icon = [UIImage imageNamed:@"123.png"];
+            [marker setOpacity:0.5f];
+            marker.panoramaView = panoView;
+            [markerArray addObject:marker];
+            GMSMarker* marker2 = [GMSMarker markerWithPosition:panorama.coordinate];
+            marker2.icon = [UIImage imageNamed:@"123.png"];
+            [marker2 setOpacity:0.5f];
+            marker2.panoramaView = rightPanoView;
+            [markerArray addObject:marker2];
+        }];
     }
-}
-
-- (void)onResults:(NSArray *)results confidences:(NSArray *)confidences marked:(BOOL)marked {
-    if (speechRecognizer) {
-        speechRecognizer = nil;
-    }
-    isChecking = NO;
-    NSMutableString *resultLabel = [[NSMutableString alloc] initWithString:@"result (confidence)\n"];
-    
-    for (int i = 0; i < [results count]; i++) {
-        [resultLabel appendString:[NSString stringWithFormat:@"%@ (%d)\n", [results objectAtIndex:i], [[confidences objectAtIndex:i] intValue]]];
-    }
-    NSLog(@"%@",resultLabel);
-}
-
-- (void)onAudioLevel:(float)audioLevel {
-    
-}
-
-- (void)onFinished {
-    isChecking = NO;
     
 }
+
 @end

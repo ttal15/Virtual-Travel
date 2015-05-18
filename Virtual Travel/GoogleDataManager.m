@@ -16,4 +16,16 @@
     }
     return instance;
 }
+
+-(NSMutableArray *) getSearchPlaceData:(NSString *) place
+{
+    CLGeocoder *myGeocoder = [[CLGeocoder alloc]init];
+    [myGeocoder geocodeAddressString:place completionHandler:^(NSArray *placemarks, NSError *error) {
+        for(CLPlacemark *mark in placemarks){
+            NSLog(@"%@",mark.name);
+        }
+    }];
+    
+    return nil;
+}
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <KakaoOpenSDK/KakaoOpenSDK.h>
 
 @interface AppDelegate ()
 
@@ -17,9 +18,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    [GMSServices provideAPIKey:@"AIzaSyAr0DT-RvjcYSWvRBoPX0f0aMGCu7uIW3Q"];
-    //    [Parse setApplicationId:@"vNsAHZ6Bh4ImgONU7GtyR7BsgCWI0WZ1assxlg3X" clientKey:@"xXGgzfm3yffKXaZDOGZfGCASLsWy02hOTanPJOAc"];
-    //    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
+    [GMSServices provideAPIKey:@"AIzaSyA4SKSA9AS3zkuSMd7GdJOlQMbLMjs9jrc"];
+    [Parse setApplicationId:@"vNsAHZ6Bh4ImgONU7GtyR7BsgCWI0WZ1assxlg3X" clientKey:@"xXGgzfm3yffKXaZDOGZfGCASLsWy02hOTanPJOAc"];
+    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
     
     if(![[AVAudioSession sharedInstance] setActive:YES error:nil])
@@ -27,7 +28,7 @@
         NSLog(@"Failed to set up a session.");
     }
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     return YES;
 }
 
@@ -47,10 +48,22 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        [KOSession handleDidBecomeActive];
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
+    
+    if( [KOSession isKakaoAccountLoginCallback:url] ) {
+        return [KOSession handleOpenURL:url];
+    }else{
+        return nil;
+    }
+    return nil;
+}
 @end

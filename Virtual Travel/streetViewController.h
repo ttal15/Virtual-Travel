@@ -10,11 +10,9 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <CoreMotion/CoreMotion.h>
 #import <Parse/Parse.h>
-#import <DaumSpeech/DaumSpeechRecognizer.h>
-#import <DaumSpeech/DaumTextToSpeech.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface streetViewController : UIViewController<CLLocationManagerDelegate,MTSpeechRecognizerDelegate, MTSpeechRecognizerViewDelegate>
+@interface streetViewController : UIViewController<CLLocationManagerDelegate,GMSPanoramaViewDelegate>
 {
     GMSPanoramaView *panoView;
     GMSPanoramaView *rightPanoView;
@@ -28,7 +26,6 @@
     NSTimer *timer;
     
     
-    CLLocationCoordinate2D coor;
     GMSPanoramaLink *selectedPanorama;
     
     short roll;
@@ -37,14 +34,21 @@
     BOOL isMoving;
     BOOL isChecking;
     
-    MTSpeechRecognizerClient *speechRecognizer;
+    CLLocationCoordinate2D startCoord;
+    float bdAngle;
+    BOOL autoTravel;
+    GMSPath *path;
+    NSMutableArray *markerArray;
+    
 }
 @property (nonatomic, retain) CMDeviceMotion *motion;
 @property (nonatomic, retain) CMAttitude *attitude;
 @property short roll;
 @property short pitch;
 @property short yaw;
-
+-(void) moveAutomatically;
+-(void) setPath:(GMSPath *) p;
+-(void) setStartCoord:(CLLocationCoordinate2D) coord;
 -(void) updateGyro;
 -(void) moveTo;
 -(void) moveToPanoramaID;

@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <CoreLocation/CoreLocation.h>
 @interface GoogleDataManager : NSObject
 {
 }
 + (GoogleDataManager *) sharedManager;
+-(NSMutableArray *) getSearchPlaceData:(NSString *) place;
 @end
